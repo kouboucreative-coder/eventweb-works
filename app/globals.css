@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+/* ------------------------------ */
+/*  基本カラー（常に白背景）      */
+/* ------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff;   /* 常に白 */
+  --foreground: #171717;   /* 文字色（黒） */
 }
 
+/* Tailwind 用テーマ設定 */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,13 +16,19 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ------------------------------ */
+/*  ダークモードでも白を維持      */
+/* ------------------------------ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;   /* ダークモードでも白に固定 */
+    --foreground: #171717;
   }
 }
 
+/* ------------------------------ */
+/*  全体のデザイン設定           */
+/* ------------------------------ */
 body {
   background: var(--background);
   color: var(--foreground);
