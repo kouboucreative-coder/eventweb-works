@@ -11,7 +11,29 @@ const { defineSecret } = require("firebase-functions/params");
 const LINE_TOKEN = defineSecret("LINE_TOKEN");
 const RECAPTCHA_SECRET = defineSecret("RECAPTCHA_SECRET");
 
-// 表示用変換
+// ====== 設定 ======
+
+// フロントの execute と同じ action 名にする（←ここが超大事）
+const RECAPTCHA_ACTION = "order_submit";
+
+// reCAPTCHA が返す hostname をチェック
+const ALLOWED_HOSTNAMES = [
+  "localhost",
+  "eventweb-works.vercel.app",
+  // 独自ドメインを取ったらここに追加
+  // "example.com",
+];
+
+// スコアしきい値（公開直後なのでかなりゆるめ）
+const SCORE_THRESHOLD = 0.1;
+
+// CORS 許可ドメイン
+const ALLOWED_ORIGINS = [
+  "http://localhost:3000",
+  "https://eventweb-works.vercel.app",
+];
+
+// ====== 表示用変換 ======
 const formatBudget = (value) => {
   switch (value) {
     case "5000-10000":
@@ -65,11 +87,22 @@ async function verifyRecaptcha(token, remoteip) {
   });
 
   const json = await res.json();
-  return json; // { success, score, action, challenge_ts, hostname, "error-codes": [] }
+  return json; // { success, score, action, hostname, ... }
 }
 
+// ====== CORS ヘルパー ======
+function applyCors(req, res) {
+  const origin = req.headers.origin;
+  if (origin && ALLOWED_ORIGINS.includes(origin)) {
+    res.set("Access-Control-Allow-Origin", origin);
+  }
+  res.set("Vary", "Origin");
+  res.set("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.set("Access-Control-Allow-Headers", "Content-Type");
+}
+
+// ====== 注文受付 API ======
 /**
- * ✅ 注文受付 API（reCAPTCHA検証 → OKならFirestore保存）
  * POST /createOrder
  * body: { recaptchaToken, order: { name,email,phone,type,budgetRange,deadline,meeting,details } }
  */
@@ -77,9 +110,15 @@ exports.createOrder = onRequest(
   {
     region: "asia-northeast1",
     secrets: [RECAPTCHA_SECRET],
-    cors: true, // Next.js から呼べるように
   },
   async (req, res) => {
+    applyCors(req, res);
+
+    // preflight
+    if (req.method === "OPTIONS") {
+      return res.status(204).send("");
+    }
+
     try {
       if (req.method !== "POST") {
         return res.status(405).json({ ok: false, error: "Method not allowed" });
@@ -99,20 +138,46 @@ exports.createOrder = onRequest(
         req.headers["x-forwarded-for"]?.toString()?.split(",")[0]?.trim() || "";
       const verify = await verifyRecaptcha(recaptchaToken, remoteip);
 
-      // スコアしきい値（真人間を弾きにくい設定）
-      const score = typeof verify.score === "number" ? verify.score : 0;
       const success = !!verify.success;
+      const score = typeof verify.score === "number" ? verify.score : 0;
+      const hostname = asCleanString(verify.hostname);
+      const action = asCleanString(verify.action);
 
-      if (!success || score < 0.3) {
+      // ---- 判定 ----
+      if (!success) {
+        return res
+          .status(403)
+          .json({ ok: false, blocked: true, reason: "recaptcha_failed" });
+      }
+
+      if (hostname && !ALLOWED_HOSTNAMES.includes(hostname)) {
         return res.status(403).json({
           ok: false,
           blocked: true,
-          reason: "recaptcha",
+          reason: "hostname_mismatch",
+          hostname,
+        });
+      }
+
+      if (action && action !== RECAPTCHA_ACTION) {
+        return res.status(403).json({
+          ok: false,
+          blocked: true,
+          reason: "action_mismatch",
+          action,
+        });
+      }
+
+      if (score < SCORE_THRESHOLD) {
+        return res.status(403).json({
+          ok: false,
+          blocked: true,
+          reason: "low_score",
           score,
         });
       }
 
-      // 入力値を整形（最低限）
+      // 入力値を整形
       const data = {
         name: asCleanString(order.name),
         email: asCleanString(order.email),
@@ -123,10 +188,12 @@ exports.createOrder = onRequest(
         meeting: asCleanString(order.meeting),
         details: asCleanString(order.details),
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        recaptchaScore: score, // 管理者の参考（不要なら消してOK）
+        recaptchaScore: score,
+        recaptchaHostname: hostname,
+        recaptchaAction: action,
       };
 
-      // 必須チェック（空なら弾く）
+      // 必須チェック
       const requiredKeys = [
         "name",
         "email",
@@ -138,12 +205,12 @@ exports.createOrder = onRequest(
         "details",
       ];
       for (const k of requiredKeys) {
-        if (!data[k] || data[k].length === 0) {
+        if (!data[k]) {
           return res.status(400).json({ ok: false, error: `Missing ${k}` });
         }
       }
 
-      // Firestore 保存（ここで orders が作成される → 既存のLINE通知が動く）
+      // Firestore 保存（orders が作成される → LINE通知が動く）
       const ref = await admin.firestore().collection("orders").add(data);
 
       return res.status(200).json({ ok: true, id: ref.id });
@@ -154,7 +221,7 @@ exports.createOrder = onRequest(
   }
 );
 
-// Firestore: orders に新規追加されたらLINE通知
+// ====== 新規注文 → LINE 通知 ======
 exports.notifyNewOrder = onDocumentCreated(
   {
     document: "orders/{orderId}",
