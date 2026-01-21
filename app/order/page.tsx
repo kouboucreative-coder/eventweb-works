@@ -31,8 +31,9 @@ export default function OrderPage() {
       );
     }
 
+    // ★ Functions 側の RECAPTCHA_ACTION = "create_order" と合わせる
     const token = await w.grecaptcha.execute(SITE_KEY, {
-      action: "order_submit",
+      action: "create_order",
     });
     return token;
   };
