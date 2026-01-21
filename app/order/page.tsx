@@ -12,6 +12,7 @@ const SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
 
 export default function OrderPage() {
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false); // ✅ 同意チェック用
   const router = useRouter();
 
   // reCAPTCHA v3 のトークン取得
@@ -85,6 +86,7 @@ export default function OrderPage() {
 
       // 成功
       form.reset();
+      setAgreed(false); // ✅ チェックもリセット
       router.push("/order/complete");
     } catch (err) {
       alert("送信中にエラーが発生しました。");
@@ -235,10 +237,34 @@ export default function OrderPage() {
           />
         </div>
 
+        {/* プライバシーポリシー同意 */}
+        <div className="mt-4">
+          <label className="flex items-start gap-2 text-sm text-zinc-700">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              required
+            />
+            <span>
+              <a
+                href="/privacy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-700 underline"
+              >
+                プライバシーポリシー
+              </a>
+              に同意します
+            </span>
+          </label>
+        </div>
+
         {/* 送信ボタン */}
         <button
           type="submit"
-          disabled={loading || !SITE_KEY}
+          disabled={loading || !SITE_KEY || !agreed}
           className="mt-6 w-full rounded-lg bg-blue-700 text-white font-semibold py-3 hover:bg-blue-800 transition disabled:opacity-60"
         >
           {loading ? "送信中..." : "送信する"}
