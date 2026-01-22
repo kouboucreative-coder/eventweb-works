@@ -110,11 +110,16 @@ export default function OrderPage() {
       )}
 
       <h1 className="text-3xl font-bold text-blue-700 text-center">
-        注文フォーム
+        制作・ご相談のお申し込みフォーム
       </h1>
 
-      <p className="text-center text-zinc-600 mt-3">
-        必要事項をご入力ください。送信後、24時間以内にご連絡します。
+      <p className="text-center text-zinc-600 mt-3 leading-relaxed">
+        イベント企画・Webサイト／Webサービス制作のご相談を受け付けています。
+        <br />
+        <span className="font-semibold">
+          初回ヒアリング（30〜60分）と概算お見積りのご提示までは無料
+        </span>
+        です。内容がまだ固まっていなくても、お気軽にご相談ください。
       </p>
 
       {!SITE_KEY && (
@@ -133,6 +138,7 @@ export default function OrderPage() {
             name="name"
             required
             className="mt-2 w-full border rounded px-4 py-2"
+            placeholder="例）山田 太郎"
           />
         </div>
 
@@ -144,6 +150,7 @@ export default function OrderPage() {
             name="email"
             required
             className="mt-2 w-full border rounded px-4 py-2"
+            placeholder="例）example@example.com"
           />
         </div>
 
@@ -155,12 +162,13 @@ export default function OrderPage() {
             name="phone"
             required
             className="mt-2 w-full border rounded px-4 py-2"
+            placeholder="日中ご連絡がとりやすい番号をご記入ください"
           />
         </div>
 
         {/* 注文種別 */}
         <div>
-          <label className="font-semibold">注文種別 *</label>
+          <label className="font-semibold">ご依頼の内容（種別） *</label>
           <select
             name="type"
             required
@@ -168,14 +176,19 @@ export default function OrderPage() {
           >
             <option value="">選択してください</option>
             <option value="イベント企画">イベント企画</option>
-            <option value="Web制作">Web制作</option>
-            <option value="両方">両方</option>
+            <option value="Web制作">Webサイト／Webサービス制作</option>
+            <option value="両方">イベント企画＋Web制作</option>
           </select>
         </div>
 
         {/* 予算の目安 */}
         <div>
-          <label className="font-semibold">予算の目安 *</label>
+          <label className="font-semibold">
+            ご予算の目安 *
+            <span className="ml-1 text-xs text-zinc-500">
+              （大まかなイメージでかまいません）
+            </span>
+          </label>
           <select
             name="budgetRange"
             required
@@ -191,18 +204,18 @@ export default function OrderPage() {
 
         {/* 希望納期 */}
         <div>
-          <label className="font-semibold">希望納期 *</label>
+          <label className="font-semibold">ご希望の納期 *</label>
           <select
             name="deadline"
             required
             className="mt-2 w-full border rounded px-4 py-2"
           >
             <option value="">選択してください</option>
-            <option value="no-rush">急ぎではない</option>
+            <option value="no-rush">急ぎではない（スケジュール相談）</option>
             <option value="1week">1週間以内</option>
             <option value="2week">2週間以内</option>
             <option value="1month">1ヶ月以内</option>
-            <option value="other">その他（詳細欄に記入）</option>
+            <option value="other">その他（詳細欄にご記入ください）</option>
           </select>
         </div>
 
@@ -228,14 +241,49 @@ export default function OrderPage() {
 
         {/* 詳細内容 */}
         <div>
-          <label className="font-semibold">詳細内容（依頼内容） *</label>
+          <label className="font-semibold">詳細内容（ご相談・ご要望） *</label>
           <textarea
             name="details"
             required
             rows={6}
             className="mt-2 w-full border rounded px-4 py-2"
-            placeholder="例：50人規模のオフ会イベントを企画したいです。テーマは〇〇で、場所は△△を予定しています…"
+            placeholder={`例：
+・どのようなイベント／サイトを作りたいか
+・ターゲット（参加者／利用者）のイメージ
+・参考にしたいサイトやデザイン
+・ご予算やご希望のスケジュール
+など、わかる範囲で自由にご記入ください。`}
           />
+        </div>
+
+        {/* 注意事項ボックス */}
+        <div className="mt-6 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-4 text-sm leading-relaxed text-zinc-700">
+          <h2 className="font-semibold mb-2 text-zinc-800">
+            ご依頼前にご確認ください
+          </h2>
+
+          <p className="mb-1 font-semibold">◆ 無料で対応できる範囲</p>
+          <ul className="list-disc list-inside mb-3">
+            <li>初回ヒアリング（オンライン 30〜60分程度）</li>
+            <li>ご要望の整理と実現方法のご提案</li>
+            <li>概算お見積りとおおまかなスケジュールのご提示</li>
+          </ul>
+
+          <p className="mb-1 font-semibold">◆ ここから先は有料となります</p>
+          <ul className="list-disc list-inside mb-3">
+            <li>具体的なデザイン案・ワイヤーフレームの作成</li>
+            <li>本番環境向けの制作・開発作業</li>
+            <li>ご発注後の大きな仕様変更に伴う追加作業</li>
+          </ul>
+
+          <p className="mb-1 font-semibold">◆ お受けできないご依頼</p>
+          <ul className="list-disc list-inside">
+            <li>
+              法律・規約・公序良俗に反する内容（著作権・利用規約違反となる二次創作など）
+            </li>
+            <li>反社会的勢力・マルチ商法・ギャンブル等を推奨する内容</li>
+            <li>その他、運営側が不適切と判断した案件</li>
+          </ul>
         </div>
 
         {/* プライバシーポリシー同意 */}
@@ -257,7 +305,7 @@ export default function OrderPage() {
               >
                 プライバシーポリシー
               </a>
-              に同意します
+              に同意のうえ、送信します
             </span>
           </label>
         </div>
@@ -271,8 +319,13 @@ export default function OrderPage() {
           {loading ? "送信中..." : "送信する"}
         </button>
 
-        <p className="text-xs text-zinc-500 mt-2">
-          ※送信できない場合はメール（koubou.creative@gmail.com）へご連絡ください。
+        <p className="text-xs text-zinc-500 mt-2 text-center">
+          ※フォームがうまく動作しない場合は、
+          <span className="font-semibold">
+            {" "}
+            koubou.creative@gmail.com{" "}
+          </span>
+          まで直接ご連絡ください。
         </p>
       </form>
     </main>
