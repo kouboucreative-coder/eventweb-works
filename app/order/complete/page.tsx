@@ -12,22 +12,51 @@ export default function OrderCompletePage() {
           </h1>
 
           <p className="mt-4 text-zinc-700 leading-relaxed">
-            内容を確認し、<span className="font-semibold">24時間以内</span>にご連絡します。
-            ご依頼いただきありがとうございます。
+            フォームに入力いただいた内容を受け付けました。
+            内容を確認し、
+            <span className="font-semibold"> 原則24時間以内 </span>
+            にご連絡いたします。
+            ご相談・ご依頼ありがとうございます。
           </p>
 
           {/* 次の流れ */}
           <div className="mt-10 grid gap-4">
             <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-5">
-              <p className="text-sm font-semibold text-zinc-900">次に起きること</p>
+              <p className="text-sm font-semibold text-zinc-900">今後の流れ</p>
               <ol className="mt-3 space-y-2 text-zinc-700">
-                <li>1. 内容を確認（不足があれば追加で質問します）</li>
-                <li>2. 打ち合わせ日程の調整（Zoom / Meet / LINE / Discord）</li>
-                <li>3. 方針決定 → 制作開始</li>
+                <li>1. ご入力内容の確認（不足があれば追加でご質問します）</li>
+                <li>2. オンライン打ち合わせの日程調整（Zoom / Meet / LINE / Discord）</li>
+                <li>3. 方針・お見積りのご提案 → 問題なければ制作開始</li>
               </ol>
             </div>
 
-            {/* 🔽 メール受信のお願い（追加部分） */}
+            {/* 技術的・スケジュール的に難しい依頼について */}
+            <div className="rounded-xl border border-zinc-200 bg-white p-5">
+              <p className="text-sm font-semibold text-zinc-900">
+                ご依頼内容・スケジュールについて
+              </p>
+              <p className="mt-3 text-zinc-700 leading-relaxed">
+                内容やご希望の納期によっては、
+                <span className="font-semibold">
+                  技術的な理由やスケジュールの都合によりお受けできない場合
+                </span>
+                や、
+                <span className="font-semibold">
+                  納期・ボリュームの調整をお願いする場合
+                </span>
+                があります。
+              </p>
+              <ul className="mt-3 text-sm text-zinc-700 list-disc list-inside space-y-1">
+                <li>短期間での大規模開発・大幅な仕様変更を伴う案件</li>
+                <li>専門外の技術スタックが必須となる案件</li>
+                <li>安全性・規約遵守が難しいと判断した内容</li>
+              </ul>
+              <p className="mt-3 text-xs text-zinc-500">
+                その場合でも、できる限り代替案や現実的な進め方をご提案します。
+              </p>
+            </div>
+
+            {/* メール受信のお願い */}
             <div className="rounded-xl border border-blue-200 bg-blue-50 p-5">
               <p className="text-sm font-semibold text-blue-800">
                 メール受信設定のご確認をお願いします
@@ -36,7 +65,8 @@ export default function OrderCompletePage() {
               <p className="mt-3 text-zinc-700 leading-relaxed">
                 ご連絡は、以下のメールアドレスからお送りします。
                 迷惑メール対策や受信制限を設定されている場合は、
-                <span className="font-semibold">受信を許可</span>していただけると確実です。
+                <span className="font-semibold"> 受信を許可 </span>
+                していただけると確実です。
               </p>
 
               <div className="mt-4 rounded-lg bg-white border border-blue-200 px-4 py-3 font-mono text-blue-700 text-sm">
@@ -46,15 +76,21 @@ export default function OrderCompletePage() {
               <ul className="mt-4 text-zinc-700 text-sm space-y-1">
                 <li>・迷惑メールフォルダに振り分けられていないか</li>
                 <li>・ドメイン / アドレスの受信拒否設定がないか</li>
-                <li>・Gmail / キャリアメールをご利用の場合は特にご確認ください</li>
+                <li>・Gmail やキャリアメールをご利用の場合は特にご確認ください</li>
               </ul>
             </div>
 
             <div className="rounded-xl border border-zinc-200 bg-white p-5">
-              <p className="text-sm font-semibold text-zinc-900">ご連絡が来ない場合</p>
+              <p className="text-sm font-semibold text-zinc-900">
+                ご連絡が届かない場合
+              </p>
               <p className="mt-3 text-zinc-700 leading-relaxed">
-                24時間以上経っても連絡がない場合は、
-                メールの受信状況をご確認のうえ、再度ご連絡ください。
+                24時間以上経ってもこちらからのメールが届かない場合は、
+                迷惑メールフォルダや受信設定をご確認のうえ、
+                <span className="font-semibold"> 再度フォームからご連絡 </span>
+                いただくか、
+                <span className="font-semibold"> koubou.creative@gmail.com </span>
+                まで直接ご連絡ください。
               </p>
             </div>
           </div>
@@ -79,13 +115,13 @@ export default function OrderCompletePage() {
               href="/order"
               className="w-full sm:w-auto text-center rounded-lg border border-zinc-300 text-zinc-800 font-semibold px-6 py-3 bg-white hover:bg-zinc-50 transition"
             >
-              もう一度送信する
+              もう一件相談する
             </a>
           </div>
 
           <p className="mt-8 text-xs text-zinc-500 leading-relaxed">
-            ※このページは送信完了後に表示されます。ブラウザの戻る操作で再送信が発生する可能性があるため、
-            追加のご依頼は「もう一度送信する」からお願いします。
+            ※このページは送信完了後に表示されています。ブラウザの戻るボタンから前の画面に戻ると、
+            同じ内容が再送信される場合があります。追加入力がある場合は「もう一件相談する」からお送りください。
           </p>
         </div>
       </div>
