@@ -13,18 +13,16 @@ const RECAPTCHA_SECRET = defineSecret("RECAPTCHA_SECRET");
 
 // ====== 設定 ======
 
-// フロントの execute と同じ action 名にする（←ここが超大事）
+// フロントの execute と同じ action 名（ログ用に残しておく）
 const RECAPTCHA_ACTION = "order_submit";
 
-// reCAPTCHA が返す hostname をチェック
+// hostname チェック用（今回は「ブロックには使わない」）
 const ALLOWED_HOSTNAMES = [
   "localhost",
   "eventweb-works.vercel.app",
-  // 独自ドメインを取ったらここに追加
-  // "example.com",
 ];
 
-// スコアしきい値（公開直後なのでかなりゆるめ）
+// スコアしきい値（かなりゆるめ）
 const SCORE_THRESHOLD = 0.1;
 
 // CORS 許可ドメイン
@@ -104,7 +102,20 @@ function applyCors(req, res) {
 // ====== 注文受付 API ======
 /**
  * POST /createOrder
- * body: { recaptchaToken, order: { name,email,phone,type,budgetRange,deadline,meeting,details } }
+ * body: {
+ *   recaptchaToken,
+ *   order: {
+ *     name,
+ *     email,
+ *     phone,
+ *     type,
+ *     budgetRange,
+ *     deadline,
+ *     meeting,
+ *     details,
+ *     meetingUnavailable   // 🆕 追加
+ *   }
+ * }
  */
 exports.createOrder = onRequest(
   {
@@ -128,6 +139,7 @@ exports.createOrder = onRequest(
       const order = req.body?.order || {};
 
       if (!recaptchaToken) {
+        console.warn("createOrder: missing recaptchaToken");
         return res
           .status(400)
           .json({ ok: false, error: "Missing recaptchaToken" });
@@ -143,32 +155,27 @@ exports.createOrder = onRequest(
       const hostname = asCleanString(verify.hostname);
       const action = asCleanString(verify.action);
 
-      // ---- 判定 ----
+      console.log("reCAPTCHA verify result:", {
+        success,
+        score,
+        hostname,
+        action,
+      });
+
+      // ---- 判定（ゆるめ）----
       if (!success) {
+        console.warn("createOrder: recaptcha_failed");
         return res
           .status(403)
           .json({ ok: false, blocked: true, reason: "recaptcha_failed" });
       }
 
-      if (hostname && !ALLOWED_HOSTNAMES.includes(hostname)) {
-        return res.status(403).json({
-          ok: false,
-          blocked: true,
-          reason: "hostname_mismatch",
-          hostname,
-        });
-      }
-
-      if (action && action !== RECAPTCHA_ACTION) {
-        return res.status(403).json({
-          ok: false,
-          blocked: true,
-          reason: "action_mismatch",
-          action,
-        });
-      }
+      // hostname / action はログだけ取ってブロックには使わない
+      // if (hostname && !ALLOWED_HOSTNAMES.includes(hostname)) { ... }
+      // if (action && action !== RECAPTCHA_ACTION) { ... }
 
       if (score < SCORE_THRESHOLD) {
+        console.warn("createOrder: low_score", score);
         return res.status(403).json({
           ok: false,
           blocked: true,
@@ -187,6 +194,8 @@ exports.createOrder = onRequest(
         deadline: asCleanString(order.deadline),
         meeting: asCleanString(order.meeting),
         details: asCleanString(order.details),
+        // 🆕 会議が難しい日時（任意項目）
+        meetingUnavailable: asCleanString(order.meetingUnavailable),
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         recaptchaScore: score,
         recaptchaHostname: hostname,
@@ -206,6 +215,7 @@ exports.createOrder = onRequest(
       ];
       for (const k of requiredKeys) {
         if (!data[k]) {
+          console.warn("createOrder: missing field", k);
           return res.status(400).json({ ok: false, error: `Missing ${k}` });
         }
       }
@@ -213,6 +223,7 @@ exports.createOrder = onRequest(
       // Firestore 保存（orders が作成される → LINE通知が動く）
       const ref = await admin.firestore().collection("orders").add(data);
 
+      console.log("createOrder: stored order", ref.id);
       return res.status(200).json({ ok: true, id: ref.id });
     } catch (e) {
       console.error("createOrder failed:", e);
