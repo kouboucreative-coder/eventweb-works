@@ -276,6 +276,47 @@ export default function OrderPage() {
             <li>ご発注後の大きな仕様変更に伴う追加作業</li>
           </ul>
 
+          <p className="mb-1 font-semibold">◆ 現時点で対応が難しい内容</p>
+          <ul className="list-disc list-inside mb-3">
+            <li>
+              iOS／Android アプリなど、ネイティブアプリの開発
+            </li>
+            <li>
+              大規模サービスの完全クローンや、
+              既存有名サービスとほぼ同一デザイン・機能をコピーするご依頼
+            </li>
+            <li>
+              法律・利用規約・著作権に抵触する可能性が高い二次創作サイトや配布サービス
+            </li>
+            <li>
+              24時間365日の監視や即時対応が必要な大規模システムの運用業務
+            </li>
+          </ul>
+
+          <p className="mb-1 font-semibold">◆ 納期についてのお願い</p>
+          <ul className="list-disc list-inside mb-3">
+            <li>
+              制作ボリュームに対して「数日以内でフル機能を実装」などの
+              <span className="font-semibold">
+                極端に短い納期のご希望は、お受けできない場合があります。
+              </span>
+            </li>
+            <li>
+              納期は、
+              <span className="font-semibold">
+                初回ヒアリングで内容をお伺いしたうえで確定
+              </span>
+              させていただきます。
+            </li>
+            <li>
+              どうしてもタイトなスケジュールの場合は、
+              <span className="font-semibold">
+                機能を絞った簡易版からのスタート
+              </span>
+              などをご提案させていただくことがあります。
+            </li>
+          </ul>
+
           <p className="mb-1 font-semibold">◆ お受けできないご依頼</p>
           <ul className="list-disc list-inside">
             <li>
