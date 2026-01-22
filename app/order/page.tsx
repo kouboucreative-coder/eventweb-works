@@ -55,6 +55,8 @@ export default function OrderPage() {
       deadline: formData.get("deadline"),
       meeting: formData.get("meeting"),
       details: formData.get("details"),
+      // 🆕 打ち合わせが難しい日時（自由入力・任意）
+      meetingUnavailable: formData.get("meetingUnavailable"),
     };
 
     try {
@@ -239,6 +241,23 @@ export default function OrderPage() {
           </div>
         </div>
 
+        {/* 🆕 打ち合わせが難しい日時（今後2週間くらい） */}
+        <div>
+          <label className="font-semibold text-sm">
+            打ち合わせが難しい日時（今後2週間くらいの中で）{" "}
+            <span className="ml-1 text-xs text-zinc-500">任意</span>
+          </label>
+          <textarea
+            name="meetingUnavailable"
+            rows={3}
+            className="mt-2 w-full border rounded px-3 py-2 text-sm"
+            placeholder={`例：
+・平日は 18:00 以降のみ対応可能
+・◯月◯日〜◯月◯日はテスト期間のため終日NG
+・土日の午前中は基本的に難しい など`}
+          />
+        </div>
+
         {/* 詳細内容 */}
         <div>
           <label className="font-semibold">詳細内容（ご相談・ご要望） *</label>
@@ -278,9 +297,7 @@ export default function OrderPage() {
 
           <p className="mb-1 font-semibold">◆ 現時点で対応が難しい内容</p>
           <ul className="list-disc list-inside mb-3">
-            <li>
-              iOS／Android アプリなど、ネイティブアプリの開発
-            </li>
+            <li>iOS／Android アプリなど、ネイティブアプリの開発</li>
             <li>
               大規模サービスの完全クローンや、
               既存有名サービスとほぼ同一デザイン・機能をコピーするご依頼
@@ -362,10 +379,7 @@ export default function OrderPage() {
 
         <p className="text-xs text-zinc-500 mt-2 text-center">
           ※フォームがうまく動作しない場合は、
-          <span className="font-semibold">
-            {" "}
-            koubou.creative@gmail.com{" "}
-          </span>
+          <span className="font-semibold"> koubou.creative@gmail.com </span>
           まで直接ご連絡ください。
         </p>
       </form>
